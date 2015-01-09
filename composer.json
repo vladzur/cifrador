@@ -1,6 +1,6 @@
 {
   "name": "vladzur/cifrador",
-  "description": "Cifra y descifra cadenas de texto usando AES",
+  "description": "Encrypt and decrypt strings using AES",
   "minimum-stability": "stable",
   "license": "GPL",
   "authors": [

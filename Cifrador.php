@@ -23,82 +23,75 @@
  */
 namespace Vladzur\Cifrador;
 /**
- * Clase para cifrar y descifrar textos utilizando la funci�n mcryt en modo CFB
+ * Clase para cifrar y descifrar textos utilizando la función mcryt en modo CFB
  * y el algoritmo Rijndael 256 (AES).
- * Es capaz de generar contrase�as aleatorias y generar textos cifrados como
+ * Es capaz de generar contraseñas aleatorias y generar textos cifrados como
  * binarios o en base 64.
  *
  * @author Vladimir Zurita
  */
 class Cifrador {
 
-	private $clave = '';
-	private $iv = '';
-	private $iv64 = '';
+	private $clave;
+	private $iv;
 
 	/**
 	 * Cifra un texto utilizando el algoritmo Rijndael_256 (AES), retornando el texto
 	 * como binario o en base 64.
 	 *
 	 * @param string $texto Texto a cifrar
-	 * @param string $password Contrase�a para cifrar
-	 * @param bool $base64 Indicar si se retornar� binario o base 64.
+	 * @param string $password Contraseña para cifrar
+	 * @param bool $base64 Indicar si se retornará un binario o base 64.
 	 * @return string Texto cifrado
 	 */
-	public function cifrar($texto, $password, $base64 = true) {
+	public function cifrar($texto, $password) {
 		$this->generarClave($password);
 		if (empty($this->iv)) {
 			$this->generarIV();
 		}
-		$resultado = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $this->clave, $texto, MCRYPT_MODE_CFB, $this->iv);
-		if ($base64 === true) {
-			return base64_encode($resultado);
-		}
-		return $resultado;
+		$resultado = $this->iv . mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $this->clave, $texto, MCRYPT_MODE_CFB, $this->iv);
+		return base64_encode($resultado);
 	}
 
 	/**
-	 * Genera una clave binaria de la contrase�a entregada usando el algoritmo SHA256.
+	 * Genera una clave binaria de la contraseña entregada usando el algoritmo SHA256.
 	 *
-	 * @param string $password Contrase�a para generar la clave
+	 * @param string $password Contraseña para generar la clave
 	 */
 	private function generarClave($password) {
 		$this->clave = hash('SHA256', $password, true);
 	}
 
 	/**
-	 * Genera el vector de inicializaci�n (IV) para el algoritmo Rijndael_256 (AES).
+	 * Genera el vector de inicialización (IV) para el algoritmo Rijndael_256 (AES).
 	 */
 	private function generarIV() {
 		$this->iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CFB), MCRYPT_DEV_URANDOM);
-		$this->iv64 = base64_encode($this->iv);
 	}
 
 	/**
 	 * Descifra un texto utilizando el algoritmo Rijndael_256 (AES) retornando el texto en claro.
 	 *
 	 * @param string $text Texto a descifrar, puede estar en binario o base 64
-	 * @param string $password La contrase�a que se us� para cifrar
-	 * @param bool $base64 Indica si el texto a descifrar est� en base 64 o no
+	 * @param string $password La contraseña que se usó para cifrar
+	 * @param bool $base64 Indica si el texto a descifrar está en base 64 o no
 	 * @return string Texto descifrado.
 	 */
-	public function descifrar($texto, $password = null, $base64 = true) {
+	public function descifrar($texto, $password = null) {
 		$this->generarClave($password);
-		$iv = $this->iv;
-		if ($base64 === true) {
-			$texto = base64_decode($texto);
-			$iv = base64_decode($this->iv64);
-		}
-		$resultado = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $this->clave, $texto, MCRYPT_MODE_CFB, $iv);
-		return $resultado;
+		$resultado = base64_decode($texto);
+		$iv = substr($resultado, 0, 32);
+		$cifrado = substr($resultado, 32);
+		$descifrado = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $this->clave, $cifrado, MCRYPT_MODE_CFB, $iv);
+		return $descifrado;
 	}
 
 	/**
-	 * Genera una contrase�a aleatoria de largo indicado.
+	 * Genera una contraseña aleatoria de largo indicado.
 	 * Basado en ejemplo mt_rand() en php.net
 	 *
-	 * @param int $largo Cantidad de caracteres de la contrase�a default 16.
-	 * @return string Contrase�a generada.
+	 * @param int $largo Cantidad de caracteres de la contraseña default 16.
+	 * @return string Contraseña generada.
 	 */
 	public function generarPassword($largo = 16) {
 		$password = '';
@@ -113,28 +106,9 @@ class Cifrador {
 			if ($rnd > 90 && $rnd < 97) {
 				$rnd += 7;
 			}
-			$password = chr($rnd);
+			$password .= chr($rnd);
 		}
 		return $password;
-	}
-
-	/**
-	 * Asigna un vector de inicialización (IV) en base 64 para ser usado
-	 * en el cifrado/descifrado.
-	 *
-	 * @param string $iv64 IV en base 64
-	 */
-	public function setIV($iv64) {
-		$this->iv = base64_decode($iv64);
-		$this->iv64 = $iv64;
-	}
-
-	/**
-	 * Accesador de la propiedad iv64
-	 * @return string
-	 */
-	public function getIv64() {
-		return $this->iv64;
 	}
 
 	/**
