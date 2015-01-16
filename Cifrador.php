@@ -36,12 +36,21 @@ class Cifrador {
 	private $iv;
 
 	/**
+	 * Alias for Cifrador::cifrar()
+	 * @param $text
+	 * @param $password
+	 * @return string
+	 */
+	public function encrypt($text, $password) {
+		return $this->cifrar($text, $password);
+	}
+
+	/**
 	 * Cifra un texto utilizando el algoritmo Rijndael_256 (AES), retornando el texto
 	 * como binario o en base 64.
 	 *
 	 * @param string $texto Texto a cifrar
 	 * @param string $password Contraseña para cifrar
-	 * @param bool $base64 Indicar si se retornará un binario o base 64.
 	 * @return string Texto cifrado
 	 */
 	public function cifrar($texto, $password) {
@@ -70,6 +79,16 @@ class Cifrador {
 	}
 
 	/**
+	 * Alias for Cifrador::descifrar()
+	 * @param $text
+	 * @param $password
+	 * @return string
+	 */
+	public function decrypt($text, $password) {
+		return $this->descifrar($text, $password);
+	}
+
+	/**
 	 * Descifra un texto utilizando el algoritmo Rijndael_256 (AES) retornando el texto en claro.
 	 *
 	 * @param string $text Texto a descifrar, puede estar en binario o base 64
@@ -77,7 +96,7 @@ class Cifrador {
 	 * @param bool $base64 Indica si el texto a descifrar está en base 64 o no
 	 * @return string Texto descifrado.
 	 */
-	public function descifrar($texto, $password = null) {
+	public function descifrar($texto, $password) {
 		$this->generarClave($password);
 		$resultado = base64_decode($texto);
 		$iv = substr($resultado, 0, 32);
