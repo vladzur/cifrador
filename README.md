@@ -1,3 +1,5 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/10f0481ba48e4a518da665fcc77c6c9c)](https://www.codacy.com/app/vladzur/cifrador)
+
 ##Cifrador
 
 Encrypt and decrypt strings using AES
